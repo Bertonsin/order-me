@@ -75,7 +75,7 @@ class IngredientController @Autowired constructor(val ingredientRepository: Ingr
         try {
             ingredientRepository.findById(id).orElseThrow { NotFoundException() }
                 ?.let {
-                    it-> ingredientRepository.deleteById(it.id)
+                    it-> ingredientRepository.delete(it)
                 }
             return ResponseEntity(HttpStatus.NO_CONTENT)
         } catch (error: Exception){
