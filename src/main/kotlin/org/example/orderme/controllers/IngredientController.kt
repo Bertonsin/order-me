@@ -6,12 +6,15 @@ import org.example.orderme.repositories.IngredientRepository
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+
 
 @RestController
 @RequestMapping("/ingredients")
@@ -47,6 +50,35 @@ class IngredientController @Autowired constructor(val ingredientRepository: Ingr
         }
         catch (error: Exception){
             println(error.message)
+            return ResponseEntity(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @PutMapping("/{id}")
+    fun updateIngredient(@PathVariable("id") id: Long, @RequestBody ingredient: Ingredient): ResponseEntity<out Any> {
+        try {
+            ingredientRepository.findById(id).orElseThrow { NotFoundException() }
+                ?.apply {
+                    this.name = ingredient.name
+                    this.amount = ingredient.amount
+                }?.let {
+                    it-> ingredientRepository.save<Ingredient>(it)
+                }
+            return ResponseEntity(HttpStatus.OK);
+        } catch (error: Exception){
+            return ResponseEntity(HttpStatus.NOT_FOUND)
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    fun deleteIngredients(@PathVariable("id") id: Long): ResponseEntity<out Any> {
+        try {
+            ingredientRepository.findById(id).orElseThrow { NotFoundException() }
+                ?.let {
+                    it-> ingredientRepository.deleteById(it.id)
+                }
+            return ResponseEntity(HttpStatus.NO_CONTENT)
+        } catch (error: Exception){
             return ResponseEntity(HttpStatus.NOT_FOUND);
         }
     }
